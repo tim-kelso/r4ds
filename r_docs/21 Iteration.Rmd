@@ -25,15 +25,6 @@ for (i in seq_along(df)) {            # 2. sequence (what you want to loop over 
 output #displays the output
 ```
 #21.2.1 Exercises
-Write for loops to:
-
-1. Compute the mean of every column in mtcars.
-2. Determine the type of each column in nycflights13::flights.
-3. Compute the number of unique values in each column of iris.
-4. Generate 10 random normals from distributions with means of -10, 0, 10, and 100.
-
-Think about the output, sequence, and body before you start writing the loop.
-
 ``` {r 21.2.1 Exercises}
 #1. Compute the mean of every column in mtcars.
 output1 <- vector("double", ncol(mtcars))
@@ -70,4 +61,61 @@ for(i in seq_along(output4)) {
   output4 <- rnorm(n, mean = mu[i])
 }
 output4
+```
+
+## 21.3.5 Exercises
+``` {r 21.2.1 Exercises}
+#1. Imagine you have a directory full of CSV files that you want to read in. You have their paths in a vector, "files <- dir("data/", pattern = "\\.csv$", full.names = TRUE)", and now want to read each one with read_csv(). Write the for loop that will load them into a single data frame.
+
+##output: is a list that is then converted to a data.frame with bind_rows
+##sequence: loop through all elements of the vector
+##body: read_csv function
+files <- c("a.csv", "b.csv", "c.csv")
+df_list <- vector("list", length(files))
+for (i in seq_along(files)) {
+  df_list[[1]] <- read_csv(files[[i]])
+}
+df_list <- bind_rows(df_list)
+
+#2. A. What happens if you use for (nm in names(x)) and x has no names? 
+#B. What if only some of the elements are named? 
+#C. What if the names are not unique?
+A. Will it give the index for each column? No, it does not run the code in the loop. In other words, it runs zero iterations of the loop.
+B. If there only some names, then we get an error for trying to access an element without a name.
+C. If the vector contains duplicate names, then x[[nm]] returns the first element with that name.
+
+#3. Write a function that prints the mean of each numeric column in a data frame, along with its name. For example, show_mean(iris) would print:
+
+#show_mean(iris)
+#> Sepal.Length: 5.84
+#> Sepal.Width:  3.06
+#> Petal.Length: 3.76
+#> Petal.Width:  1.20
+
+##Output: a list of values and names that is then combined into a data frame
+##Sequence: all numeric columns in iris
+##Body: mean function
+numericCols_iris <- iris %>% 
+  select(where(is.numeric))
+means_iris <- vector("list", length(numericCols_iris))
+for (i in seq_along(numericCols_iris)) {
+  #names(means_iris[[i]]) <- names(numericCols_iris[[i]])
+  means_iris[[i]] <- mean(numericCols_iris[[i]])
+}
+means_iris <- unlist(means_iris) #got close?
+
+#(Extra challenge: what function did I use to make sure that the numbers lined up nicely, even though the variable names had different lengths?)
+
+#4. What does this code do? How does it work?
+
+#trans <- list( 
+# disp = function(x) x * 0.0163871, - mutates display by multiplying it
+# am = function(x) { - converts am to a factor
+#    factor(x, labels = c("auto", "manual"))
+#  }
+#)
+#for (var in names(trans)) {
+#  mtcars[[var]] <- trans[[var]](mtcars[[var]]) - runs the trans function on the variables whenever it appears as a column
+#}
+
 ```
