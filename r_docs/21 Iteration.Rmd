@@ -102,7 +102,7 @@ for (i in seq_along(numericCols_iris)) {
   #names(means_iris[[i]]) <- names(numericCols_iris[[i]])
   means_iris[[i]] <- mean(numericCols_iris[[i]])
 }
-means_iris <- unlist(means_iris) #got close?
+means_iris <- unlist(means_iris) #got close? but didn't actually print the variable names together with the numbers
 
 #(Extra challenge: what function did I use to make sure that the numbers lined up nicely, even though the variable names had different lengths?)
 
@@ -118,4 +118,69 @@ means_iris <- unlist(means_iris) #got close?
 #  mtcars[[var]] <- trans[[var]](mtcars[[var]]) - runs the trans function on the variables whenever it appears as a column
 #}
 
+```
+
+## 21.4.1 Exercises
+``` {r 21.2.1 Exercises}
+#1.Read the documentation for apply(). In the 2d case, what two for loops does it generalise?
+It applies a for loop columnwise and rowwise. So it does it across columns and by rows
+
+#2.Adapt col_summary() so that it only applies to numeric columns. 
+#You might want to start with an is_numeric() function that returns a logical vector that has a TRUE corresponding to each numeric column.
+
+
+col_summary <- function(df, fun) {
+  out <- vector("double", length(df))
+  for (i in seq_along(df)) {
+    out[i] <- fun(df[[i]])
+  }
+  out
+}
+
+#Function 1
+##output: is a logical vector where TRUE corresponds to each numeric column
+##sequence: loop through all columns of the dataframe
+##body: is_numeric() function
+
+col_summary2 <- function(df, fun) {
+  numeric_cols <- vector("logical", length(df)) #create the initial output
+  for (i in seq_along(df)) {
+    numeric_cols[[i]] <- is.numeric(df[[i]])
+  }
+  indexes <- which(numeric_cols) #find the numeric cols
+  n <- sum(numeric_cols) #find the total number of numeric cols
+  out <- vector("double", n) #create an output the length of total number of numeric cols
+  for (i in seq_along(indexes)) { #loop along only the numeric col indexes
+    out[i] <- fun(df[[indexes[[i]]]]) #apply only at numeric col indexes
+  }
+  names(out) <- names(df)[indexes]
+  out
+}
+#create a test dataframe first
+df <- tibble(
+  A = c(1,2),
+  B = c("Yes", "No"),
+  C = c(80,12),
+  D = c(TRUE, FALSE),
+  E = c(5,9)
+)
+col_summary2(df, mean)
+```
+
+## 21.5 The map functions
+``` {r 21.5 testing}
+df2 <- tibble(
+  A = c(1,2),
+  B = c(4, 6),
+  C = c(80,12),
+  D = c(2, 5),
+  E = c(5,9)
+) 
+
+map_dbl(df2, mean) #compute the mean of each column in df, returning a vector of type "double"
+
+df2 %>% map_dbl(mean)
+
+map(df2, summary) %>% #compute summary statistics of each column in df, returning a vector of type "list", which will store multiple values for each column, eg  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+map_dbl("Median") #then extract the component of the list called "Median"
 ```
